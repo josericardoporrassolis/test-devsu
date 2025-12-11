@@ -1,0 +1,4 @@
+rootProject.name = 'test-devsu'
+include 'ms-customers'
+include 'ms-accounts'
+include 'ms-token'
