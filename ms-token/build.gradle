@@ -1,0 +1,81 @@
+plugins {
+    id 'java'
+    id 'jacoco'
+    id 'org.springframework.boot' version '3.2.3'
+    id 'io.spring.dependency-management' version '1.1.4'
+}
+
+group = 'com.banco'
+version = '0.0.1-SNAPSHOT'
+
+java {
+    sourceCompatibility = '21'
+}
+
+dependencies {
+    // spring
+    implementation 'org.springframework.boot:spring-boot-starter-web'
+    implementation 'org.springframework.boot:spring-boot-starter-security'
+
+    // lombok
+    compileOnly 'org.projectlombok:lombok'
+    annotationProcessor 'org.projectlombok:lombok'
+
+    // jwt
+    implementation 'com.nimbusds:nimbus-jose-jwt:9.37.3'
+
+    // test
+    testImplementation 'org.springframework.boot:spring-boot-starter-test'
+
+}
+
+repositories {
+    mavenCentral()
+}
+
+tasks.named('test') {
+    useJUnitPlatform()
+    finalizedBy jacocoTestReport, jacocoTestCoverageVerification
+}
+
+jacoco {
+    toolVersion = "0.8.10"
+}
+
+def coverageExcludes = [
+        'com/devsu/data/model/**',
+        'com/devsu/dto/**',
+        'com/devsu/Application.class'
+]
+
+jacocoTestCoverageVerification {
+    violationRules {
+        rule {
+            limit {
+                minimum = 0.80
+            }
+        }
+    }
+    afterEvaluate {
+        classDirectories.setFrom(
+                files(classDirectories.files.collect {
+                    fileTree(dir: it, exclude: coverageExcludes)
+                })
+        )
+    }
+}
+
+jacocoTestReport {
+    dependsOn test
+    reports {
+        xml.required = true
+        html.required = true
+    }
+    afterEvaluate {
+        classDirectories.setFrom(
+                files(classDirectories.files.collect {
+                    fileTree(dir: it, exclude: coverageExcludes)
+                })
+        )
+    }
+}
